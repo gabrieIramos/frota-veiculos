@@ -66,7 +66,7 @@ public class VeiculoRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sqlVeiculo, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sqlVeiculo, new String[]{"id"});
             ps.setString(1, veiculo.getModelo());
             ps.setString(2, veiculo.getFabricante());
             ps.setInt(3, veiculo.getAno());
@@ -86,15 +86,15 @@ public class VeiculoRepository {
 
 
         if (veiculo instanceof Carro carro) {
-            String sqlCarro = "INSERT INTO carros (id, quantidade_portas, tipo_combustivel) VALUES (?, ?, ?)";
+            String sqlCarro = "INSERT INTO carros (veiculo_id, quantidade_portas, tipo_combustivel) VALUES (?, ?, ?)";
 
             jdbcTemplate.update(sqlCarro,
                     veiculoId,
                     carro.getQuantidade_portas(),
-                    carro.getTipoCombustivel());
+                    carro.getTipoCombustivel().name());
 
         } else if (veiculo instanceof Moto moto) {
-            String sqlMoto = "INSERT INTO motos (id, cilindrada) VALUES (?, ?)";
+            String sqlMoto = "INSERT INTO motos (veiculo_id, cilindrada) VALUES (?, ?)";
 
             jdbcTemplate.update(sqlMoto,
                     veiculoId,
@@ -110,8 +110,8 @@ public class VeiculoRepository {
                 "c.quantidade_portas, c.tipo_combustivel, " +
                 "m.cilindrada " +
                 "FROM veiculos v " +
-                "LEFT JOIN carros c ON v.id = c.id " +
-                "LEFT JOIN motos m ON v.id = m.id " +
+                "LEFT JOIN carros c ON v.id = c.veiculo_id " +
+                "LEFT JOIN motos m ON v.id = m.veiculo_id " +
                 "WHERE v.id = ?";
         List<Veiculo> resultados = jdbcTemplate.query(sql, veiculoRowMapper, id);
         return resultados.stream().findFirst();
@@ -122,8 +122,8 @@ public class VeiculoRepository {
                 "c.quantidade_portas, c.tipo_combustivel, " +
                 "m.cilindrada " +
                 "FROM veiculos v " +
-                "LEFT JOIN carros c ON v.id = c.id " +
-                "LEFT JOIN motos m ON v.id = m.id";
+                "LEFT JOIN carros c ON v.id = c.veiculo_id " +
+                "LEFT JOIN motos m ON v.id = m.veiculo_id";
         return jdbcTemplate.query(sql, veiculoRowMapper);
     }
 
@@ -139,13 +139,13 @@ public class VeiculoRepository {
                 veiculo.getId());
 
         if (veiculo instanceof Carro carro) {
-            String sqlCarro = "UPDATE carros SET quantidade_portas = ?, tipo_combustivel = ? WHERE id = ?";
+            String sqlCarro = "UPDATE carros SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
             jdbcTemplate.update(sqlCarro,
                     carro.getTipoCombustivel(),
                     carro.getTipoCombustivel(),
                     veiculo.getId());
         } else if (veiculo instanceof Moto moto) {
-            String sqlMoto = "UPDATE motos SET cilindrada = ? WHERE id = ?";
+            String sqlMoto = "UPDATE motos SET cilindrada = ? WHERE veiculo_id = ?";
             jdbcTemplate.update(sqlMoto,
                     moto.getCilindrada(),
                     veiculo.getId());
@@ -165,8 +165,8 @@ public class VeiculoRepository {
                         "c.quantidade_portas, c.tipo_combustivel, " +
                         "m.cilindrada " +
                         "FROM veiculos v " +
-                        "LEFT JOIN carros c ON v.id = c.id " +
-                        "LEFT JOIN motos m ON v.id = m.id " +
+                        "LEFT JOIN carros c ON v.id = c.veiculo_id " +
+                        "LEFT JOIN motos m ON v.id = m.veiculo_id " +
                         "WHERE 1=1"
         );
         List<Object> params = new java.util.ArrayList<>();

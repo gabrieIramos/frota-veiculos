@@ -16,4 +16,9 @@ public class Moto extends Veiculo {
         super(id, modelo, fabricante, ano, preco);
         this.cilindrada = cilindrada;
     }
+
+    public Moto(String modelo, String fabricante, int ano, double preco, int cilindrada) {
+        super(modelo, fabricante, ano, preco);
+        this.cilindrada = cilindrada;
+    }
 }

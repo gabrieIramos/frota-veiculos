@@ -63,7 +63,6 @@ public class VeiculoService {
 
     @Transactional
     public Veiculo atualizarVeiculo(Integer id, Veiculo veiculoAtualizado) {
-        // 1. Verificar se o veículo existe
         Optional<Veiculo> veiculoExistente = veiculoRepository.findById(id);
         if (veiculoExistente.isEmpty()) {
             throw new IllegalArgumentException("Veículo com ID " + id + " não encontrado para atualização.");
