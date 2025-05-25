@@ -141,7 +141,7 @@ public class VeiculoRepository {
         if (veiculo instanceof Carro carro) {
             String sqlCarro = "UPDATE carros SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
             jdbcTemplate.update(sqlCarro,
-                    carro.getTipoCombustivel(),
+                    carro.getQuantidade_portas(),
                     carro.getTipoCombustivel(),
                     veiculo.getId());
         } else if (veiculo instanceof Moto moto) {
