@@ -14,6 +14,9 @@ const filtroAnoInput = document.getElementById('filtro-ano');
 const filtroTipoSelect = document.getElementById('filtro-tipo');
 const btnFiltrar = document.getElementById('btn-filtrar');
 const btnLimparFiltros = document.getElementById('btn-limpar-filtros');
+const filtroFabricanteInput = document.getElementById('filtro-fabricante');
+const filtroPrecoMinimoInput = document.getElementById('filtro-preco-min');
+const filtroPrecoMaximoInput = document.getElementById('filtro-preco-max');
 
 
 const detalhesModal = document.getElementById('detalhes-modal');
@@ -63,6 +66,10 @@ async function carregarVeiculos(filtros = {}) {
     if (filtros.modelo) params.append('modelo', filtros.modelo);
     if (filtros.ano) params.append('ano', filtros.ano);
     if (filtros.tipo) params.append('tipo', filtros.tipo);
+    if (filtros.fabricante) params.append('fabricante', filtros.fabricante);
+    if (filtros.precoMinimo) params.append('precoMinimo', filtros.precoMinimo);
+    if (filtros.precoMaximo) params.append('precoMaximo', filtros.precoMaximo);
+    
 
     if (params.toString()) {
         url += `/search?${params.toString()}`;
@@ -125,7 +132,7 @@ async function handleSubmitVeiculo(event) {
     const modelo = document.getElementById('modelo').value;
     const fabricante = document.getElementById('fabricante').value;
     const ano = parseInt(document.getElementById('ano').value);
-    const preco = parseFloat(document.getElementById('preco').value);
+    const preco = parseFloat(document.getElementById('preco').value.replace(',', '').replace('.', ''));
 
     let dadosVeiculo = {
         modelo,
@@ -320,7 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtros = {
             modelo: filtroModeloInput.value,
             ano: filtroAnoInput.value ? parseInt(filtroAnoInput.value) : null,
-            tipo: filtroTipoSelect.value
+            tipo: filtroTipoSelect.value,
+            fabricante: filtroFabricanteInput.value,
+            precoMinimo: filtroPrecoMinimoInput.value ? parseFloat(filtroPrecoMinimoInput.value) : null,
+            precoMaximo: filtroPrecoMaximoInput.value ? parseFloat(filtroPrecoMaximoInput.value) : null
         };
         carregarVeiculos(filtros);
     });

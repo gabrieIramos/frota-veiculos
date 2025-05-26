@@ -142,7 +142,7 @@ public class VeiculoRepository {
             String sqlCarro = "UPDATE carros SET quantidade_portas = ?, tipo_combustivel = ? WHERE veiculo_id = ?";
             jdbcTemplate.update(sqlCarro,
                     carro.getQuantidade_portas(),
-                    carro.getTipoCombustivel(),
+                    carro.getTipoCombustivel().name(),
                     veiculo.getId());
         } else if (veiculo instanceof Moto moto) {
             String sqlMoto = "UPDATE motos SET cilindrada = ? WHERE veiculo_id = ?";
@@ -159,7 +159,7 @@ public class VeiculoRepository {
         jdbcTemplate.update(sql, id);
     }
 
-    public List<Veiculo> findByFiltro(String tipo, String modelo, Integer ano) {
+    public List<Veiculo> findByFiltro(String tipo, String modelo, Integer ano, String fabricante, Double preco_minimo, Double preco_maximo) {
         StringBuilder sqlBuilder = new StringBuilder(
                 "SELECT v.id, v.modelo, v.fabricante, v.ano, v.preco, v.tipo_veiculo, " +
                         "c.quantidade_portas, c.tipo_combustivel, " +
@@ -182,6 +182,18 @@ public class VeiculoRepository {
         if (ano != null) {
             sqlBuilder.append(" AND v.ano = ?");
             params.add(ano);
+        }
+        if (fabricante != null && !fabricante.isEmpty()) {
+            sqlBuilder.append(" AND v.fabricante ILIKE ?");
+            params.add("%" + fabricante + "%");            
+        }
+        if (preco_minimo != null && preco_minimo > 0) {
+            sqlBuilder.append(" AND v.preco >= ?");
+            params.add(preco_minimo);
+        }
+        if (preco_maximo != null && preco_maximo > 0) {
+            sqlBuilder.append(" AND v.preco <= ?");
+            params.add(preco_maximo);
         }
         return jdbcTemplate.query(sqlBuilder.toString(), veiculoRowMapper, params.toArray());
     }

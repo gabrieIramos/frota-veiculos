@@ -110,7 +110,11 @@ public class VeiculoService {
         veiculoRepository.deleteById(id);
     }
 
-    public List<Veiculo> consultarVeiculosPorCriterios(String tipo, String modelo, Integer ano) {
-        return veiculoRepository.findByFiltro(tipo, modelo, ano);
+    public List<Veiculo> consultarVeiculosPorCriterios(String tipo, String modelo, Integer ano, String fabricante, Double precoMinimo, Double precoMaximo) {  
+        // System.out.println("Consultando veículos com critérios: " +
+        //         "tipo=" + tipo + ", modelo=" + modelo + ", ano=" + ano +
+        //         ", fabricante=" + fabricante + ", precoMinimo=" + precoMinimo +
+        //         ", precoMaximo=" + precoMaximo);      
+        return veiculoRepository.findByFiltro(tipo, modelo, ano, fabricante, precoMinimo, precoMaximo);
     }
 }

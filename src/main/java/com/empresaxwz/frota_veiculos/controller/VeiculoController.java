@@ -92,9 +92,12 @@ public class VeiculoController {
     public ResponseEntity<List<VeiculoResponseDTO>> consultarVeiculosPorCriterios(
             @RequestParam(required = false) String tipo,
             @RequestParam(required = false) String modelo,
-            @RequestParam(required = false) Integer ano) {
+            @RequestParam(required = false) Integer ano,
+            @RequestParam(required = false) String fabricante,
+            @RequestParam(required = false) Double precoMinimo,
+            @RequestParam(required = false) Double precoMaximo) {
 
-        List<Veiculo> veiculos = veiculoService.consultarVeiculosPorCriterios(tipo, modelo, ano);
+        List<Veiculo> veiculos = veiculoService.consultarVeiculosPorCriterios(tipo, modelo, ano, fabricante, precoMinimo, precoMaximo);
         List<VeiculoResponseDTO> dtos = veiculos.stream()
                 .map(VeiculoResponseDTO::fromEntity)
                 .collect(Collectors.toList());
