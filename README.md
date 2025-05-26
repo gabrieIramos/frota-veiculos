@@ -6,7 +6,7 @@ Este é um sistema de gerenciamento de frotas de veiculos desenvolvido para cada
 
 ### Backend
 * *Java 17*
-* *Spring Boot*
+* *Spring Boot (3.3.12)*
 * *PostgreSQL*: Banco de dados relacional.
 * *Maven*: Gerenciamento de dependências e construção de projetos.
 * *Lombok*: Para reduzir o código (getters, setters, construtores, etc.)
@@ -47,9 +47,35 @@ Antes de iniciar o projeto, certifique-se de ter instalado:
 2.  Crie um banco de dados chamado frota (ou o nome que preferir).
     ```sql
     CREATE DATABASE frota;
+
+3.  Execute o script sql para criar as tabelas veiculos, carro e moto.
+    ```sql
+       DROP TABLE IF EXISTS motos CASCADE;
+       DROP TABLE IF EXISTS carros CASCADE;
+       DROP TABLE IF EXISTS veiculos CASCADE;
+
+      CREATE TABLE veiculos (
+          id SERIAL PRIMARY KEY,
+          modelo VARCHAR(100) NOT NULL,
+          fabricante VARCHAR(100) NOT NULL,
+          ano INT NOT NULL,
+          preco DECIMAL(10, 2) NOT NULL,
+          tipo_veiculo VARCHAR(10) NOT NULL CHECK (tipo_veiculo IN ('CARRO', 'MOTO'))
+      );
+      
+      CREATE TABLE carros (
+          veiculo_id INT PRIMARY KEY REFERENCES veiculos(id) ON DELETE CASCADE,
+          quantidade_portas INT NOT NULL,
+          tipo_combustivel VARCHAR(20) NOT NULL CHECK (tipo_combustivel IN ('GASOLINA', 'ETANOL', 'DIESEL', 'FLEX'))
+      );
+      
+      CREATE TABLE motos (
+          veiculo_id INT PRIMARY KEY REFERENCES veiculos(id) ON DELETE CASCADE,
+          cilindrada INT NOT NULL
+      );
     
 
-3.  Atualize as configurações do banco de dados no arquivo src/main/resources/application.properties caso seu usuário ou senha do PostgreSQL sejam diferentes do padrão:
+4.  Atualize as configurações do banco de dados no arquivo src/main/resources/application.properties caso seu usuário ou senha do PostgreSQL sejam diferentes do padrão:
     ```properties
     spring.datasource.url=jdbc:postgresql://localhost:5432/frota
     spring.datasource.username=postgres
