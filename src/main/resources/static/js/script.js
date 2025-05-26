@@ -23,6 +23,7 @@ const detalhesModal = document.getElementById('detalhes-modal');
 const detalhesConteudoDiv = document.getElementById('detalhes-conteudo');
 const closeButton = document.querySelector('.close-button');
 
+const formMessageStatus = document.getElementById('formMessageStatus');
 
 
 function toggleCamposVeiculo() {
@@ -48,12 +49,14 @@ function limparFormulario() {
     veiculoIdInput.value = '';
     btnSalvar.textContent = 'Salvar Veículo';
     toggleCamposVeiculo();
+    clearErrorMessages();
 }
 
 
 function exibirMensagem(mensagem, tipo = 'info') {
-    alert(mensagem);
-    console.log(`[${tipo.toUpperCase()}] ${mensagem}`);
+    clearErrorMessages();
+        formMessageStatus.textContent = mensagem;
+        formMessageStatus.className = tipo;
 }
 
 
@@ -123,14 +126,16 @@ async function carregarVeiculos(filtros = {}) {
     }
 }
 
-
 async function handleSubmitVeiculo(event) {
     event.preventDefault();
+
+    clearErrorMessages();
 
     const id = veiculoIdInput.value;
     const tipoVeiculo = tipoVeiculoSelect.value;
     const modelo = document.getElementById('modelo').value;
     const fabricante = document.getElementById('fabricante').value;
+
     const ano = parseInt(document.getElementById('ano').value);
     const preco = parseFloat(document.getElementById('preco').value.replace(',', '').replace('.', ''));
 
@@ -188,29 +193,45 @@ async function handleSubmitVeiculo(event) {
         exibirMensagem('Modelo e Fabricante devem ser preenchidos', 'erro')
     }
 
-
     try {
-        const response = await fetch(endpoint, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dadosVeiculo)
-        });
+            const response = await fetch(endpoint, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosVeiculo)
+            });
 
-        const data = await response.json();
+            const data = await response.json(); // Tenta sempre converter a resposta para JSON
 
-        if (!response.ok) {
-            throw new Error(data.message || `Erro na operação: ${response.statusText}`);
+            if (!response.ok) {
+                // Trata erros de validação (HTTP 400) ou outros erros do backend
+                if (response.status === 400 && data.errors) {
+                    // Erros de validação do Spring Boot (com 'errors' array)
+                    let allErrorMessages = [];
+                    data.errors.forEach(error => {
+                        allErrorMessages.push(error.defaultMessage);
+                    });
+                    exibirMensagem("Houve os seguintes erros de validação:\n- " + allErrorMessages.join("\n- "), 'erro');
+
+                } else if (data.message) {
+                    // Erros do backend que retornam uma 'message' genérica (ex: IllegalArgumentException do Service)
+                    exibirMensagem(`Erro na operação: ${data.message}`, 'erro');
+                } else {
+                    // Erro desconhecido sem 'message' ou 'errors'
+                    exibirMensagem(`Erro desconhecido do servidor: ${response.statusText}`, 'erro');
+                }
+                return; // Garante que não prossiga para o sucesso após um erro
+            }
+
+            exibirMensagem(`Veículo ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, 'sucesso');
+            limparFormulario();
+            carregarVeiculos();
+        } catch (error) {
+
+            console.error(`Erro de comunicação ou inesperado:`, error);
+            exibirMensagem(`Erro de comunicação: ${error.message}. Verifique sua conexão ou tente novamente.`, 'erro');
         }
-
-        exibirMensagem(`Veículo ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, 'sucesso');
-        limparFormulario();
-        carregarVeiculos();
-    } catch (error) {
-        console.error(`Erro ao ${id ? 'atualizar' : 'cadastrar'} veículo:`, error);
-        exibirMensagem(`Erro ao ${id ? 'atualizar' : 'cadastrar'} veículo: ${error.message}`, 'erro');
-    }
 }
 
 
@@ -305,6 +326,11 @@ async function exibirDetalhesModal(id) {
         console.error('Erro ao buscar detalhes do veículo:', error);
         detalhesConteudoDiv.innerHTML = `<p>Erro ao carregar detalhes: ${error.message}</p>`;
     }
+}
+
+function clearErrorMessages() {
+    formMessageStatus.textContent = '';
+    formMessageStatus.className = '';
 }
 
 

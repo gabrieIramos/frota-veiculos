@@ -8,6 +8,8 @@ import com.empresaxwz.frota_veiculos.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +23,21 @@ public class VeiculoService {
         this.veiculoRepository = veiculoRepository;
     }
 
+    public void ValidarAnoVeiculo(int ano){
+
+        int AnoMax = Year.now().getValue();
+        AnoMax += 1;
+
+        if (ano < 1850 || ano > AnoMax){
+            throw new IllegalArgumentException("Ano do veiculo invalido. O ano deve estar entre 1850 e " + AnoMax );
+        }
+    }
+
     @Transactional
     public Veiculo cadastrarVeiculo(Veiculo veiculo) {
-        if (veiculo.getAno() < 1850 || veiculo.getAno() > 2100) {
-            throw new IllegalArgumentException("Ano do veículo inválido.");
-        }
+
+        ValidarAnoVeiculo(veiculo.getAno());
+
         if (veiculo.getPreco() <= 0) {
             throw new IllegalArgumentException("Preço do veículo deve ser positivo.");
         }
@@ -49,7 +61,6 @@ public class VeiculoService {
             }
         }
 
-
         return veiculoRepository.save(veiculo);
     }
 
@@ -67,10 +78,8 @@ public class VeiculoService {
         if (veiculoExistente.isEmpty()) {
             throw new IllegalArgumentException("Veículo com ID " + id + " não encontrado para atualização.");
         }
+        ValidarAnoVeiculo(veiculoAtualizado.getAno());
 
-        if (veiculoAtualizado.getAno() < 1850 || veiculoAtualizado.getAno() > 2100) {
-            throw new IllegalArgumentException("Ano do veículo inválido.");
-        }
         if (veiculoAtualizado.getPreco() <= 0) {
             throw new IllegalArgumentException("Preço do veículo deve ser positivo.");
         }
