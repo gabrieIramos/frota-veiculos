@@ -202,12 +202,11 @@ async function handleSubmitVeiculo(event) {
                 body: JSON.stringify(dadosVeiculo)
             });
 
-            const data = await response.json(); // Tenta sempre converter a resposta para JSON
+            const data = await response.json();
 
             if (!response.ok) {
-                // Trata erros de validação (HTTP 400) ou outros erros do backend
+
                 if (response.status === 400 && data.errors) {
-                    // Erros de validação do Spring Boot (com 'errors' array)
                     let allErrorMessages = [];
                     data.errors.forEach(error => {
                         allErrorMessages.push(error.defaultMessage);
@@ -215,13 +214,13 @@ async function handleSubmitVeiculo(event) {
                     exibirMensagem("Houve os seguintes erros de validação:\n- " + allErrorMessages.join("\n- "), 'erro');
 
                 } else if (data.message) {
-                    // Erros do backend que retornam uma 'message' genérica (ex: IllegalArgumentException do Service)
+
                     exibirMensagem(`Erro na operação: ${data.message}`, 'erro');
                 } else {
-                    // Erro desconhecido sem 'message' ou 'errors'
+
                     exibirMensagem(`Erro desconhecido do servidor: ${response.statusText}`, 'erro');
                 }
-                return; // Garante que não prossiga para o sucesso após um erro
+                return; 
             }
 
             exibirMensagem(`Veículo ${id ? 'atualizado' : 'cadastrado'} com sucesso!`, 'sucesso');
@@ -365,6 +364,10 @@ document.addEventListener('DOMContentLoaded', () => {
         filtroModeloInput.value = '';
         filtroAnoInput.value = '';
         filtroTipoSelect.value = '';
+        filtroFabricanteInput.value = '';
+        filtroPrecoMaximoInput.value = '';
+        filtroPrecoMinimoInput.value = '';
+
         carregarVeiculos();
     });
 
